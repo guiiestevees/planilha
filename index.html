@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0D1117">
+<title>🎯 Apostas 2026</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#0D1117;--surf:#161B22;--card:#1C2128;--border:#30363D;
+  --text:#E6EDF3;--muted:#8B949E;--dim:#484F58;
+  --green:#3FB950;--gbg:rgba(63,185,80,0.1);--gbdr:rgba(63,185,80,0.3);
+  --red:#F85149;--rbg:rgba(248,81,73,0.1);--rbdr:rgba(248,81,73,0.3);
+  --gold:#E3B341;--yobg:rgba(227,179,65,0.1);--yobdr:rgba(227,179,65,0.3);
+}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:15px;overscroll-behavior:none}
+button,select,input{font-family:inherit}
+input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none}
+#app{display:flex;flex-direction:column;height:100vh;max-width:680px;margin:0 auto}
+
+/* Header */
+#header{background:var(--surf);border-bottom:1px solid var(--border);padding:14px 16px;flex-shrink:0}
+#header-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px}
+#app-title{font-size:16px;font-weight:500}
+#app-sub{font-size:11px;color:var(--muted);margin-top:2px}
+#banca-val{font-size:24px;font-weight:500;line-height:1}
+#banca-meta{font-size:11px;color:var(--muted);margin-top:2px;text-align:right}
+#kpi-row{display:grid;grid-template-columns:repeat(5,1fr);gap:5px}
+.kpi{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:7px 6px;text-align:center}
+.kpi-l{font-size:8px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:3px}
+.kpi-v{font-size:13px;font-weight:500}
+
+/* Tabs */
+#tabs{display:flex;overflow-x:auto;background:var(--surf);border-bottom:1px solid var(--border);flex-shrink:0;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+#tabs::-webkit-scrollbar{display:none}
+.tb{flex-shrink:0;padding:10px 9px;border:none;background:transparent;cursor:pointer;font-size:12px;color:var(--muted);font-weight:400;border-bottom:2px solid transparent;margin-bottom:-1px;display:flex;align-items:center;gap:4px;white-space:nowrap}
+.tb.on{font-weight:500}
+.tbadge{border-radius:8px;padding:1px 5px;font-size:9px;border:1px solid transparent}
+
+/* Content */
+#content{flex:1;overflow-y:auto;padding:16px;-webkit-overflow-scrolling:touch}
+
+/* Cards */
+.card{background:var(--card);border:1px solid var(--border);border-radius:10px}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:14px}
+.sbox{border-radius:10px;padding:12px;text-align:center}
+.sbox-l{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px}
+.sbox-v{font-size:28px;font-weight:500;line-height:1}
+.mkpi{border-radius:8px;padding:8px 6px;text-align:center;background:var(--card);border:1px solid var(--border)}
+.mkpi-l{font-size:8px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px}
+.mkpi-v{font-size:13px;font-weight:500}
+
+/* Section label */
+.slabel{font-size:10px;text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.dot{width:6px;height:6px;border-radius:50%;display:inline-block;flex-shrink:0}
+
+/* Chart card */
+.chart-card{padding:14px;margin-bottom:12px}
+.chart-title{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:12px}
+
+/* Summary table */
+.sum-table{overflow:hidden;margin-bottom:0}
+.sum-hdr{padding:10px 14px;border-bottom:1px solid var(--border);font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em}
+.sum-row{display:flex;align-items:center;padding:10px 14px;border-bottom:1px solid var(--border);gap:10px}
+.sum-row:last-child{border-bottom:none}
+.stripe{width:4px;border-radius:2px;flex-shrink:0}
+.sum-name{font-size:13px;font-weight:500}
+.sum-sub{font-size:11px;color:var(--muted)}
+.sum-right{text-align:right;margin-left:auto}
+.sum-lucro{font-size:14px;font-weight:500}
+.sum-apost{font-size:10px;color:var(--dim)}
+.sum-banca-pct{font-size:10px;margin-top:1px}
+
+/* Open card */
+.open-card{border-radius:10px;padding:14px;margin-bottom:8px}
+.open-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;gap:10px}
+.open-sel{font-size:14px;font-weight:500}
+.open-match{font-size:11px;color:var(--muted);margin-top:2px}
+.open-meta{font-size:11px;color:var(--dim);margin-top:2px}
+.open-right{text-align:right;flex-shrink:0}
+.open-valor{font-size:15px;font-weight:500}
+.open-pot{font-size:10px;color:var(--gold)}
+.btn2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.bwin{padding:11px;border-radius:8px;border:1.5px solid var(--gbdr);background:var(--gbg);color:var(--green);font-size:13px;font-weight:500;cursor:pointer}
+.blose{padding:11px;border-radius:8px;border:1.5px solid var(--rbdr);background:var(--rbg);color:var(--red);font-size:13px;font-weight:500;cursor:pointer}
+.bconf{width:100%;padding:10px;border-radius:8px;border:none;background:var(--green);color:#000;font-size:13px;font-weight:500;cursor:pointer;margin-bottom:6px}
+.bback{background:none;border:1px solid var(--border);border-radius:8px;padding:8px;width:100%;color:var(--muted);font-size:12px;cursor:pointer}
+.ret-inp{width:100%;padding:9px 12px;background:var(--surf);border:1px solid var(--green);border-radius:8px;color:var(--text);font-size:14px;outline:none;margin-bottom:8px}
+.brem{background:none;border:none;color:var(--dim);font-size:10px;cursor:pointer;margin-top:8px;display:block}
+
+/* Bet rows */
+.bets-list{overflow:hidden}
+.bet-row{padding:10px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.bet-row:last-child{border-bottom:none}
+.bet-stripe{width:3px;height:38px;border-radius:2px;flex-shrink:0}
+.bet-info{flex:1;min-width:0}
+.bet-sel{font-size:13px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bet-match{font-size:11px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bet-meta{font-size:10px;color:var(--dim)}
+.bet-amt{text-align:right;flex-shrink:0}
+.bet-valor{font-size:13px;color:var(--muted)}
+.bet-lucro{font-size:13px;font-weight:500}
+.bet-acts{display:flex;flex-direction:column;gap:4px;flex-shrink:0}
+.bedit{background:none;border:1px solid var(--border);border-radius:5px;padding:3px 8px;color:var(--muted);font-size:10px;cursor:pointer}
+.bdel{background:none;border:1px solid var(--rbdr);border-radius:5px;padding:3px 8px;color:var(--red);font-size:10px;cursor:pointer}
+.empty{text-align:center;padding:40px 0;color:var(--muted);font-size:13px}
+.empty-sub{font-size:12px;color:var(--dim);margin-top:4px}
+
+/* Form */
+.form-card{border-radius:12px;padding:18px}
+.form-title{font-size:14px;font-weight:500;margin-bottom:16px}
+.fg2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.fg1{margin-bottom:10px}
+.flbl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px;display:block}
+.finp{width:100%;padding:9px 11px;background:var(--surf);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;outline:none}
+.finp:focus{border-color:var(--green)}
+.finp:disabled{opacity:.3}
+.prev-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+.prev-box{border-radius:8px;padding:10px;text-align:center}
+.prev-l{font-size:10px;color:var(--muted);margin-bottom:2px}
+.prev-v{font-size:15px;font-weight:500}
+.bsubmit{width:100%;padding:11px;border-radius:8px;border:none;background:var(--green);color:#000;font-size:14px;font-weight:500;cursor:pointer}
+.bcancel{padding:10px 16px;border-radius:8px;border:1px solid var(--border);background:none;color:var(--muted);font-size:13px;cursor:pointer}
+.form-acts{display:flex;gap:8px;align-items:center}
+.saved{font-size:12px;color:var(--green);font-weight:500}
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="header">
+    <div id="header-top">
+      <div>
+        <div id="app-title">🎯 Apostas 2026</div>
+        <div id="app-sub">Banca inicial: R$ 3.500,00</div>
+      </div>
+      <div style="text-align:right">
+        <div id="banca-val">—</div>
+        <div id="banca-meta">banca atual</div>
+      </div>
+    </div>
+    <div id="kpi-row">
+      <div class="kpi"><div class="kpi-l">Lucro</div><div class="kpi-v" id="k-lucro">—</div></div>
+      <div class="kpi"><div class="kpi-l">% Banca</div><div class="kpi-v" id="k-bpct">—</div></div>
+      <div class="kpi"><div class="kpi-l">ROI</div><div class="kpi-v" id="k-roi">—</div></div>
+      <div class="kpi"><div class="kpi-l">Acerto</div><div class="kpi-v" id="k-acerto">—</div></div>
+      <div class="kpi"><div class="kpi-l">Apostas</div><div class="kpi-v" id="k-total">0</div></div>
+    </div>
+  </div>
+  <div id="tabs"></div>
+  <div id="content"></div>
+</div>
+
+<script>
+const BANCA_INICIAL = 3500;
+const MS  = ["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"];
+const MFL = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
+const TIPOS = ["Resultado Final","Resultado Final SuperOdds","Total de Gols +/-","Dupla Hipótese","Handicap Asiático","Ambas Marcam","Outro"];
+const MC = ["#3B82F6","#A78BFA","#10B981","#F59E0B","#F472B6","#2DD4BF","#FB923C","#22D3EE","#FB7185","#4ADE80","#C084FC","#818CF8"];
+
+const SEED = [
+  {id:"s1",data:"29/04/2026",selecao:"Menos de 2.5",valor:105,odd:1.62,tipo:"Total de Gols +/-",partida:"Cerro Porteño - Palmeiras",resultado:"Ganhou",retorno:170.10},
+  {id:"s2",data:"29/04/2026",selecao:"Flamengo",valor:70,odd:2.35,tipo:"Resultado Final SuperOdds",partida:"Estudiantes - Flamengo",resultado:"Perdida",retorno:0},
+  {id:"s3",data:"29/04/2026",selecao:"Universitario de Deportes",valor:70,odd:2.37,tipo:"Resultado Final",partida:"Universitario - Nacional Montevideo",resultado:"Ganhou",retorno:165.90},
+  {id:"s4",data:"30/04/2026",selecao:"Al-Ettifaq",valor:70,odd:1.87,tipo:"Resultado Final",partida:"Al-Okhdood - Al-Ettifaq",resultado:"Ganhou",retorno:130.90},
+];
+
+let bets = [];
+let activeTab = "geral";
+let editId = null;
+let chartInst = null;
+let formData = {data:today(),selecao:"",valor:"",odd:"",tipo:"Resultado Final",partida:"",resultado:"Em Aberto",retorno:""};
+
+function save(){ try{localStorage.setItem("apostas_v4",JSON.stringify(bets));}catch(e){} }
+function load(){ try{ const d=localStorage.getItem("apostas_v4"); bets=d?JSON.parse(d):[...SEED]; }catch{bets=[...SEED];} }
+
+const uid = () => Date.now().toString(36)+Math.random().toString(36).slice(2);
+const fmt = n => "R$ "+Number(n).toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2});
+const fmtPct = n => (n*100).toFixed(1)+"%";
+const getMI = d => { const p=d.split("/"); return p.length>=2?parseInt(p[1])-1:-1; };
+function today(){ const d=new Date(); return `${String(d.getDate()).padStart(2,"0")}/${String(d.getMonth()+1).padStart(2,"0")}/${d.getFullYear()}`; }
+const sortD = arr => [...arr].sort((a,b)=>{const f=s=>{const[d,m,y]=s.split("/");return new Date(y,m-1,d);};return f(b.data)-f(a.data);});
+
+function calcStats(){
+  const closed=bets.filter(b=>b.resultado!=="Em Aberto");
+  const won=closed.filter(b=>b.resultado==="Ganhou");
+  const lost=closed.filter(b=>b.resultado==="Perdida");
+  const open=bets.filter(b=>b.resultado==="Em Aberto");
+  const totalApostado=closed.reduce((s,b)=>s+Number(b.valor),0);
+  const totalRetorno=closed.reduce((s,b)=>s+Number(b.retorno),0);
+  const lucro=totalRetorno-totalApostado;
+  const bancaAtual=BANCA_INICIAL+lucro;
+  const roi=totalApostado>0?lucro/totalApostado:0;
+  const bancaPct=lucro/BANCA_INICIAL; // lucro % sobre banca inicial
+  const acerto=closed.length>0?won.length/closed.length:0;
+
+  const byMonth=Array.from({length:12},(_,i)=>({
+    mes:MS[i],idx:i,apostas:0,ganhas:0,perdidas:0,abertas:0,
+    apostado:0,retornado:0,lucro:0,betsClosed:[],betsOpen:[]
+  }));
+  bets.forEach(b=>{
+    const m=getMI(b.data);
+    if(m<0||m>11) return;
+    if(b.resultado==="Em Aberto"){byMonth[m].betsOpen.push(b);byMonth[m].abertas++;return;}
+    byMonth[m].betsClosed.push(b);byMonth[m].apostas++;
+    byMonth[m].apostado+=Number(b.valor);byMonth[m].retornado+=Number(b.retorno);
+    byMonth[m].lucro+=Number(b.retorno)-Number(b.valor);
+    b.resultado==="Ganhou"?byMonth[m].ganhas++:byMonth[m].perdidas++;
+  });
+  const chartData=byMonth.filter(m=>m.apostas>0).map(m=>({mes:m.mes,lucro:Math.round(m.lucro*100)/100}));
+  return {closed,won,lost,open,totalApostado,totalRetorno,lucro,bancaAtual,roi,bancaPct,acerto,byMonth,chartData};
+}
+
+function updateHeader(s){
+  const bv=document.getElementById("banca-val");
+  bv.textContent=fmt(s.bancaAtual);
+  bv.style.color=s.lucro>=0?"var(--green)":"var(--red)";
+
+  const kl=document.getElementById("k-lucro");
+  kl.textContent=fmt(s.lucro);
+  kl.style.color=s.lucro>0?"var(--green)":s.lucro<0?"var(--red)":"var(--muted)";
+
+  const kb=document.getElementById("k-bpct");
+  kb.textContent=(s.bancaPct>=0?"+":"")+fmtPct(s.bancaPct);
+  kb.style.color=s.bancaPct>0?"var(--green)":s.bancaPct<0?"var(--red)":"var(--muted)";
+
+  const kr=document.getElementById("k-roi");
+  kr.textContent=fmtPct(s.roi);
+  kr.style.color=s.roi>0?"var(--green)":s.roi<0?"var(--red)":"var(--muted)";
+
+  const ka=document.getElementById("k-acerto");
+  ka.textContent=fmtPct(s.acerto);
+  ka.style.color=s.acerto>=0.5?"var(--green)":s.acerto>0?"var(--gold)":"var(--muted)";
+
+  document.getElementById("k-total").textContent=s.closed.length;
+}
+
+function renderTabs(s){
+  const c=document.getElementById("tabs");
+  c.innerHTML="";
+  const tabs=[{key:"geral",label:"Geral",color:"#58A6FF"},...MS.map((m,i)=>({key:i,label:m,color:MC[i]})),{key:"nova",label:editId?"✏ Editar":"+ Nova",color:"var(--green)"}];
+  tabs.forEach(({key,label,color})=>{
+    const isM=typeof key==="number";
+    const md=isM?s.byMonth[key]:null;
+    const cnt=md?(md.betsClosed.length+md.betsOpen.length):0;
+    const hasOpen=md&&md.abertas>0;
+    const on=activeTab===key;
+    const btn=document.createElement("button");
+    btn.className="tb"+(on?" on":"");
+    btn.style.color=on?color:"var(--muted)";
+    if(on) btn.style.borderBottomColor=color;
+    btn.textContent=label;
+    if(isM&&cnt>0){
+      const badge=document.createElement("span");
+      badge.className="tbadge";
+      badge.textContent=cnt;
+      badge.style.background=hasOpen?"var(--yobg)":on?"rgba(255,255,255,0.06)":"var(--card)";
+      badge.style.color=hasOpen?"var(--gold)":on?color:"var(--dim)";
+      badge.style.borderColor=hasOpen?"var(--yobdr)":"transparent";
+      btn.appendChild(badge);
+    }
+    btn.addEventListener("click",()=>{activeTab=key;render();});
+    c.appendChild(btn);
+  });
+}
+
+function render(){
+  const s=calcStats();
+  updateHeader(s);
+  renderTabs(s);
+  const c=document.getElementById("content");
+  c.innerHTML="";
+  if(activeTab==="geral") c.appendChild(renderGeral(s));
+  else if(typeof activeTab==="number") c.appendChild(renderMonth(s.byMonth[activeTab],activeTab));
+  else c.appendChild(renderForm());
+}
+
+/* ── GERAL ── */
+function renderGeral(s){
+  const div=document.createElement("div");
+
+  // big 3
+  const g3=document.createElement("div"); g3.className="g3";
+  [{l:"Ganhas",v:s.won.length,c:"var(--green)",bg:"var(--gbg)",bdr:"var(--gbdr)"},
+   {l:"Perdidas",v:s.lost.length,c:"var(--red)",bg:"var(--rbg)",bdr:"var(--rbdr)"},
+   {l:"Em Aberto",v:s.open.length,c:"var(--gold)",bg:"var(--yobg)",bdr:"var(--yobdr)"}
+  ].forEach(k=>{
+    const b=document.createElement("div"); b.className="sbox";
+    b.style.cssText=`background:${k.bg};border:1px solid ${k.bdr}`;
+    b.innerHTML=`<div class="sbox-l">${k.l}</div><div class="sbox-v" style="color:${k.c}">${k.v}</div>`;
+    g3.appendChild(b);
+  });
+  div.appendChild(g3);
+
+  // totals 2-col
+  const g2=document.createElement("div"); g2.className="g2";
+  [{l:"Total apostado",v:fmt(s.totalApostado)},{l:"Total retornado",v:fmt(s.totalRetorno)}].forEach(k=>{
+    const b=document.createElement("div"); b.className="card sbox";
+    b.innerHTML=`<div class="sbox-l">${k.l}</div><div style="font-size:16px;font-weight:500">${k.v}</div>`;
+    g2.appendChild(b);
+  });
+  div.appendChild(g2);
+
+  // chart
+  if(s.chartData.length>0){
+    const cc=document.createElement("div"); cc.className="card chart-card";
+    cc.innerHTML=`<div class="chart-title">Lucro por mês</div><canvas id="lChart" height="120"></canvas>`;
+    div.appendChild(cc);
+    setTimeout(()=>{
+      const ctx=document.getElementById("lChart"); if(!ctx) return;
+      if(chartInst){chartInst.destroy();chartInst=null;}
+      chartInst=new Chart(ctx,{
+        type:"bar",
+        data:{labels:s.chartData.map(d=>d.mes),datasets:[{data:s.chartData.map(d=>d.lucro),backgroundColor:s.chartData.map(d=>d.lucro>=0?"rgba(63,185,80,0.8)":"rgba(248,81,73,0.8)"),borderRadius:4,borderSkipped:false}]},
+        options:{responsive:true,maintainAspectRatio:false,
+          plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>fmt(c.raw)}}},
+          scales:{x:{grid:{display:false},ticks:{color:"#8B949E",font:{size:10}}},
+                  y:{grid:{color:"rgba(255,255,255,0.05)"},ticks:{color:"#8B949E",font:{size:10},callback:v=>"R$"+Math.round(v)},border:{display:false}}}}
+      });
+    },50);
+  }
+
+  // summary table
+  const table=document.createElement("div"); table.className="card sum-table";
+  table.innerHTML=`<div class="sum-hdr">Resumo mensal</div>`;
+  const active=s.byMonth.filter(m=>m.betsClosed.length+m.betsOpen.length>0);
+  if(!active.length){
+    const empty=document.createElement("div"); empty.style.cssText="padding:32px;text-align:center;color:var(--muted);font-size:13px"; empty.textContent="Nenhuma aposta ainda.";
+    table.appendChild(empty);
+  } else {
+    active.forEach(m=>{
+      const ac=m.apostas>0?Math.round(m.ganhas/m.apostas*100):0;
+      const bpct=m.apostas>0?(m.lucro/BANCA_INICIAL*100).toFixed(1):null;
+      const row=document.createElement("div"); row.className="sum-row";
+      row.innerHTML=`
+        <div class="stripe" style="height:36px;background:${MC[m.idx]}"></div>
+        <div style="flex:1;min-width:0">
+          <div class="sum-name">${MS[m.idx]}</div>
+          <div class="sum-sub">${m.apostas} aposta${m.apostas!==1?"s":""}${m.apostas>0?` · ${ac}% acerto`:""}${m.abertas>0?` · ${m.abertas} em aberto`:""}</div>
+        </div>
+        <div class="sum-right">
+          <div class="sum-lucro" style="color:${m.lucro>=0?"var(--green)":"var(--red)"}">${m.apostas>0?fmt(m.lucro):"—"}</div>
+          ${bpct!==null?`<div class="sum-banca-pct" style="color:${m.lucro>=0?"var(--green)":"var(--red)"}">${m.lucro>=0?"+":""}${bpct}% da banca</div>`:""}
+          <div class="sum-apost">${m.apostas>0?fmt(m.apostado)+" apost.":m.abertas>0?`${m.abertas} em aberto`:"—"}</div>
+        </div>`;
+      table.appendChild(row);
+    });
+  }
+  div.appendChild(table);
+  return div;
+}
+
+/* ── MÊS ── */
+function renderMonth(data, mi){
+  const color=MC[mi];
+  const acerto=data.apostas>0?data.ganhas/data.apostas:0;
+  const bancaPct=data.apostas>0?(data.lucro/BANCA_INICIAL*100):null;
+  const div=document.createElement("div");
+
+  // 5 KPIs para o mês
+  const kg=document.createElement("div"); kg.style.cssText="display:grid;grid-template-columns:repeat(5,1fr);gap:5px;margin-bottom:14px";
+  const mkpis=[
+    {l:"Apostas",v:String(data.apostas),c:"var(--text)"},
+    {l:"Acerto",v:data.apostas>0?fmtPct(acerto):"—",c:acerto>=0.5?color:acerto>0?"var(--gold)":"var(--muted)"},
+    {l:"Apostado",v:data.apostas>0?fmt(data.apostado):"—",c:"var(--text)"},
+    {l:"Lucro",v:data.apostas>0?fmt(data.lucro):"—",c:data.lucro>0?"var(--green)":data.lucro<0?"var(--red)":"var(--muted)"},
+    {l:"% Banca",v:bancaPct!==null?(bancaPct>=0?"+":"")+bancaPct.toFixed(1)+"%":"—",c:bancaPct!==null&&bancaPct>=0?"var(--green)":bancaPct!==null?"var(--red)":"var(--muted)"},
+  ];
+  mkpis.forEach(k=>{
+    kg.innerHTML+=`<div class="mkpi"><div class="mkpi-l">${k.l}</div><div class="mkpi-v" style="color:${k.c}">${k.v}</div></div>`;
+  });
+  div.appendChild(kg);
+
+  // abertas
+  if(data.betsOpen.length>0){
+    const sec=document.createElement("div"); sec.style.marginBottom="14px";
+    const lbl=document.createElement("div"); lbl.className="slabel"; lbl.style.color="var(--gold)";
+    lbl.innerHTML=`<span class="dot" style="background:var(--gold)"></span>Aguardando resultado — ${data.betsOpen.length} aposta${data.betsOpen.length!==1?"s":""}`;
+    sec.appendChild(lbl);
+    data.betsOpen.forEach(b=>sec.appendChild(buildOpenCard(b)));
+    div.appendChild(sec);
+  }
+
+  // fechadas
+  const sorted=sortD(data.betsClosed);
+  if(sorted.length>0){
+    const sec=document.createElement("div");
+    const lbl=document.createElement("div"); lbl.className="slabel"; lbl.style.color="var(--muted)";
+    lbl.innerHTML=`<span class="dot" style="background:var(--muted)"></span>Finalizadas (${sorted.length})`;
+    sec.appendChild(lbl);
+    const list=document.createElement("div"); list.className="card bets-list";
+    sorted.forEach((b,i)=>list.appendChild(buildBetRow(b,i===sorted.length-1)));
+    sec.appendChild(list); div.appendChild(sec);
+  }
+
+  if(!data.betsClosed.length&&!data.betsOpen.length){
+    div.innerHTML=`<div class="empty">Nenhuma aposta em ${MFL[mi]}.<div class="empty-sub">Use "+ Nova" para registrar.</div></div>`;
+  }
+  return div;
+}
+
+/* ── OPEN CARD ── */
+function buildOpenCard(bet){
+  const card=document.createElement("div"); card.className="open-card";
+  card.style.cssText="background:var(--yobg);border:1px solid var(--yobdr)";
+  const pot=(bet.valor*bet.odd).toFixed(2);
+  card.innerHTML=`
+    <div class="open-top">
+      <div style="flex:1;min-width:0">
+        <div class="open-sel">${bet.selecao}</div>
+        <div class="open-match">${bet.partida}</div>
+        <div class="open-meta">${bet.data} · Odd ${Number(bet.odd).toFixed(2)} · ${bet.tipo}</div>
+      </div>
+      <div class="open-right">
+        <div style="font-size:10px;color:var(--muted)">apostado</div>
+        <div class="open-valor">${fmt(bet.valor)}</div>
+        <div class="open-pot">pot. ${fmt(bet.valor*bet.odd)}</div>
+      </div>
+    </div>
+    <div class="btn2" id="btns-${bet.id}">
+      <button class="bwin">✓ Ganhei</button>
+      <button class="blose">✗ Perdi</button>
+    </div>
+    <div id="rform-${bet.id}" style="display:none">
+      <div style="font-size:11px;color:var(--muted);margin-bottom:6px">Quanto recebeu? (padrão: ${fmt(bet.valor*bet.odd)})</div>
+      <input type="number" class="ret-inp" id="ret-${bet.id}" value="${pot}">
+      <button class="bconf">✓ Confirmar ganho</button>
+      <button class="bback">Voltar</button>
+    </div>
+    <button class="brem">remover aposta</button>`;
+
+  setTimeout(()=>{
+    card.querySelector(".bwin").onclick=()=>{
+      document.getElementById(`btns-${bet.id}`).style.display="none";
+      document.getElementById(`rform-${bet.id}`).style.display="block";
+    };
+    card.querySelector(".blose").onclick=()=>{ bets=bets.map(b=>b.id===bet.id?{...b,resultado:"Perdida",retorno:0}:b); save(); render(); };
+    card.querySelector(".bconf").onclick=()=>{
+      const val=Number(document.getElementById(`ret-${bet.id}`).value)||bet.valor*bet.odd;
+      bets=bets.map(b=>b.id===bet.id?{...b,resultado:"Ganhou",retorno:val}:b); save(); render();
+    };
+    card.querySelector(".bback").onclick=()=>{
+      document.getElementById(`btns-${bet.id}`).style.display="grid";
+      document.getElementById(`rform-${bet.id}`).style.display="none";
+    };
+    card.querySelector(".brem").onclick=()=>{ bets=bets.filter(b=>b.id!==bet.id); save(); render(); };
+  },0);
+  return card;
+}
+
+/* ── BET ROW ── */
+function buildBetRow(bet, isLast){
+  const lucro=Number(bet.retorno)-Number(bet.valor);
+  const ganhou=bet.resultado==="Ganhou";
+  const row=document.createElement("div"); row.className="bet-row";
+  if(isLast) row.style.borderBottom="none";
+  row.innerHTML=`
+    <div class="bet-stripe" style="background:${ganhou?"var(--green)":"var(--red)"}"></div>
+    <div class="bet-info">
+      <div class="bet-sel">${bet.selecao}</div>
+      <div class="bet-match">${bet.partida}</div>
+      <div class="bet-meta">${bet.data} · Odd ${Number(bet.odd).toFixed(2)} · ${bet.tipo}</div>
+    </div>
+    <div class="bet-amt">
+      <div class="bet-valor">${fmt(bet.valor)}</div>
+      <div class="bet-lucro" style="color:${lucro>=0?"var(--green)":"var(--red)"}">${lucro>=0?"+":""}${fmt(lucro)}</div>
+    </div>
+    <div class="bet-acts">
+      <button class="bedit">editar</button>
+      <button class="bdel">✕</button>
+    </div>`;
+  row.querySelector(".bedit").onclick=()=>startEdit(bet.id);
+  row.querySelector(".bdel").onclick=()=>{ bets=bets.filter(b=>b.id!==bet.id); save(); render(); };
+  return row;
+}
+
+/* ── FORM ── */
+function startEdit(id){
+  const bet=bets.find(b=>b.id===id); if(!bet) return;
+  editId=id; formData={...bet,retorno:String(bet.retorno)};
+  activeTab="nova"; render();
+}
+
+function renderForm(){
+  const fd=formData;
+  const pot=fd.valor&&fd.odd?Number(fd.valor)*Number(fd.odd):0;
+  const div=document.createElement("div");
+  div.className="card form-card";
+  div.innerHTML=`
+    <div class="form-title">${editId?"Editar aposta":"Nova aposta"}</div>
+    <div class="fg2">
+      <div><label class="flbl">Data</label><input class="finp" id="f-data" placeholder="DD/MM/AAAA" value="${fd.data}"></div>
+      <div><label class="flbl">Seleção apostada</label><input class="finp" id="f-sel" placeholder="Ex: Flamengo" value="${fd.selecao}"></div>
+    </div>
+    <div class="fg1"><label class="flbl">Partida</label><input class="finp" id="f-partida" placeholder="Ex: Flamengo - Boca Juniors" value="${fd.partida}"></div>
+    <div class="fg2">
+      <div><label class="flbl">Valor apostado (R$)</label><input class="finp" id="f-valor" type="number" placeholder="70" value="${fd.valor}"></div>
+      <div><label class="flbl">Odd</label><input class="finp" id="f-odd" type="number" step="0.01" placeholder="1.87" value="${fd.odd}"></div>
+    </div>
+    <div class="fg1"><label class="flbl">Tipo de mercado</label>
+      <select class="finp" id="f-tipo">${TIPOS.map(t=>`<option${t===fd.tipo?" selected":""}>${t}</option>`).join("")}</select>
+    </div>
+    <div class="fg2">
+      <div><label class="flbl">Resultado</label>
+        <select class="finp" id="f-resultado">
+          <option${fd.resultado==="Em Aberto"?" selected":""}>Em Aberto</option>
+          <option${fd.resultado==="Ganhou"?" selected":""}>Ganhou</option>
+          <option${fd.resultado==="Perdida"?" selected":""}>Perdida</option>
+        </select>
+      </div>
+      <div><label class="flbl">Retorno bruto (R$)</label>
+        <input class="finp" id="f-retorno" type="number" placeholder="${pot>0?pot.toFixed(2):"0"}" value="${fd.resultado==="Perdida"?"0":fd.retorno}" ${fd.resultado==="Perdida"?"disabled":""}>
+      </div>
+    </div>
+    ${pot>0?`
+    <div class="prev-grid">
+      <div class="prev-box" style="background:var(--card);border:1px solid var(--border)">
+        <div class="prev-l">Retorno potencial</div>
+        <div class="prev-v">${fmt(pot)}</div>
+      </div>
+      <div class="prev-box" style="background:var(--gbg);border:1px solid var(--gbdr)">
+        <div class="prev-l">Lucro potencial</div>
+        <div class="prev-v" style="color:var(--green)">${fmt(pot-Number(fd.valor||0))}</div>
+      </div>
+    </div>`:""}
+    <div class="form-acts">
+      ${editId?`<button class="bcancel" id="f-cancel">Cancelar</button>`:""}
+      <button class="bsubmit" id="f-submit">${editId?"Salvar edição":"Registrar aposta"}</button>
+      <span class="saved" id="f-saved" style="display:none">✓ Salvo!</span>
+    </div>`;
+
+  // live preview on odd/valor change
+  ["f-valor","f-odd"].forEach(id=>{
+    setTimeout(()=>{
+      document.getElementById(id)?.addEventListener("input",()=>{
+        const v=Number(document.getElementById("f-valor")?.value||0);
+        const o=Number(document.getElementById("f-odd")?.value||0);
+        formData.valor=String(v); formData.odd=String(o);
+        // only re-render preview if both filled
+        if(v>0&&o>0) render();
+      });
+    },0);
+  });
+
+  setTimeout(()=>{
+    // sync form data on change
+    const ids=["f-data","f-sel","f-partida","f-valor","f-odd","f-tipo","f-resultado","f-retorno"];
+    const keys=["data","selecao","partida","valor","odd","tipo","resultado","retorno"];
+    ids.forEach((id,i)=>{
+      document.getElementById(id)?.addEventListener("change",e=>{
+        formData[keys[i]]=e.target.value;
+        if(keys[i]==="resultado"){
+          const ri=document.getElementById("f-retorno");
+          if(ri){ ri.disabled=e.target.value==="Perdida"; if(e.target.value==="Perdida") ri.value="0"; }
+        }
+      });
+    });
+
+    document.getElementById("f-submit")?.addEventListener("click",()=>{
+      const get=id=>document.getElementById(id)?.value||"";
+      const data=get("f-data"), sel=get("f-sel"), valor=get("f-valor"), odd=get("f-odd");
+      if(!data||!sel||!valor||!odd) return;
+      const resultado=get("f-resultado");
+      const retorno=resultado==="Perdida"?0:Number(get("f-retorno"))||0;
+      const bet={id:editId||uid(),data,selecao:sel,valor:Number(valor),odd:Number(odd),tipo:get("f-tipo"),partida:get("f-partida"),resultado,retorno};
+      if(editId){ bets=bets.map(b=>b.id===editId?bet:b); editId=null; }
+      else { bets=[...bets,bet]; }
+      formData={data:today(),selecao:"",valor:"",odd:"",tipo:"Resultado Final",partida:"",resultado:"Em Aberto",retorno:""};
+      save();
+      const mi=getMI(bet.data);
+      activeTab=mi>=0&&mi<=11?mi:"geral";
+      render();
+    });
+
+    document.getElementById("f-cancel")?.addEventListener("click",()=>{
+      editId=null; formData={data:today(),selecao:"",valor:"",odd:"",tipo:"Resultado Final",partida:"",resultado:"Em Aberto",retorno:""};
+      activeTab="geral"; render();
+    });
+  },0);
+
+  return div;
+}
+
+// Boot
+load();
+render();
+
+// Scroll active tab into view
+function scrollActiveTab(){
+  const on=document.querySelector(".tb.on");
+  if(on) on.scrollIntoView({behavior:"smooth",block:"nearest",inline:"center"});
+}
+const origRender=render;
+window.addEventListener("load",()=>setTimeout(scrollActiveTab,100));
+</script>
+</body>
+</html>
